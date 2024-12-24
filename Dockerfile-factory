@@ -1,0 +1,18 @@
+FROM espressif/idf:v5.3.2
+
+
+# Install prerequisites
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    ca-certificates
+
+# Add NodeSource repository for a specific Node.js version
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+
+# Install Node.js (specific version)
+RUN apt-get install -y nodejs=22.11.0-1nodesource1
+
+# Verify Node.js and npm installation
+RUN node -v && npm -v
+RUN npm install -g @angular/cli
