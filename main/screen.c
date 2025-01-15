@@ -35,7 +35,7 @@ static lv_obj_t *self_test_finished_label;
 static double current_hashrate;
 static float current_power;
 static uint64_t current_difficulty;
-static float curreny_chip_temp;
+static float current_chip_temp;
 static bool found_block;
 
 #define SCREEN_UPDATE_MS 500
@@ -264,6 +264,13 @@ static void screen_update_cb(lv_timer_t * timer)
         return;
     }
 
+    if (module->locate_mode) {
+        screen_show(SCR_LOGO);
+        // Skip logo after locate mode is disabled
+        current_screen_counter = LOGO_DELAY_COUNT;
+        return;
+    }
+
     current_screen_counter++;
 
     // Logo
@@ -319,14 +326,14 @@ static void screen_update_cb(lv_timer_t * timer)
         }
     }
 
-    if (curreny_chip_temp != power_management->chip_temp_avg) {
+    if (current_chip_temp != power_management->chip_temp_avg) {
         lv_label_set_text_fmt(chip_temp_label, "Temp: %.1f C", power_management->chip_temp_avg);
     }
 
     current_hashrate = module->current_hashrate;
     current_power = power_management->power;
     current_difficulty = module->best_session_nonce_diff;
-    curreny_chip_temp = power_management->chip_temp_avg;
+    current_chip_temp = power_management->chip_temp_avg;
 
     if (CAROUSEL_DELAY_COUNT > current_screen_counter || found_block) {
         return;

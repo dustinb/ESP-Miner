@@ -70,6 +70,7 @@ typedef struct
     char ip_addr_str[16]; // IP4ADDR_STRLEN_MAX
     char ap_ssid[32];
     bool ap_enabled;
+    bool locate_mode;
     char * pool_url;
     char * fallback_pool_url;
     uint16_t pool_port;

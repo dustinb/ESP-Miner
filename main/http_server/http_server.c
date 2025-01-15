@@ -312,6 +312,9 @@ static esp_err_t PATCH_update_settings(httpd_req_t * req)
     if ((item = cJSON_GetObjectItem(root, "fanspeed")) != NULL) {
         nvs_config_set_u16(NVS_CONFIG_FAN_SPEED, item->valueint);
     }
+    if ((item = cJSON_GetObjectItem(root, "locateMode")) != NULL) {
+        GLOBAL_STATE->SYSTEM_MODULE.locate_mode = item->valueint != 0;
+    }
 
     cJSON_Delete(root);
     httpd_resp_send_chunk(req, NULL, 0);
@@ -392,6 +395,7 @@ static esp_err_t GET_system_info(httpd_req_t * req)
     cJSON_AddNumberToObject(root, "sharesRejected", GLOBAL_STATE->SYSTEM_MODULE.shares_rejected);
     cJSON_AddNumberToObject(root, "uptimeSeconds", (esp_timer_get_time() - GLOBAL_STATE->SYSTEM_MODULE.start_time) / 1000000);
     cJSON_AddNumberToObject(root, "asicCount", GLOBAL_STATE->asic_count);
+    cJSON_AddNumberToObject(root, "locateMode", GLOBAL_STATE->SYSTEM_MODULE.locate_mode);
     uint16_t small_core_count = 0;
     switch (GLOBAL_STATE->asic_model){
         case ASIC_BM1397:
