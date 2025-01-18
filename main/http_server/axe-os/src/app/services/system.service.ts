@@ -59,7 +59,7 @@ export class SystemService {
           autofanspeed: 1,
           fanspeed: 100,
           fanrpm: 0,
-
+          locateMode: 0,
           boardtemp1: 30,
           boardtemp2: 40,
           overheat_mode: 0

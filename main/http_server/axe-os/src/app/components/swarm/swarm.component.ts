@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError, from, map, mergeMap, of, take, timeout, toArray } from 'rxjs';
 import { LocalStorageService } from 'src/app/local-storage.service';
 import { SystemService } from 'src/app/services/system.service';
+import { environment } from 'src/environments/environment';
 const SWARM_DATA = 'SWARM_DATA'
 const SWARM_REFRESH_TIME = 'SWARM_REFRESH_TIME';
 @Component({
@@ -102,11 +103,21 @@ export class SwarmComponent implements OnInit, OnDestroy {
   scanNetwork() {
     this.scanning = true;
 
+    // Some faux Bitaxes
+    if (!environment.production) {
+      this.systemService.getInfo().subscribe(res => {
+        this.swarm = [{IP: "127.0.0.1", ...res}, {IP: "127.0.0.2", ...res}, {IP: "127.0.0.3", ...res}];
+        this.calculateTotals();
+      });
+      this.scanning = false;
+      return;
+    }
+
     const { start, end } = this.calculateIpRange(window.location.hostname, '255.255.255.0');
     const ips = Array.from({ length: end - start + 1 }, (_, i) => this.intToIp(start + i));
     from(ips).pipe(
       mergeMap(ipAddr =>
-        this.httpClient.get(`http://${ipAddr}/api/system/info`).pipe(
+        this.systemService.getInfo(`http://${ipAddr}`).pipe(
           map(result => {
             if ('hashRate' in result) {
               return {
@@ -179,6 +190,35 @@ export class SwarmComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Locate the Bitaxe but only one enabled at a time
+  public locate(axe: any) {
+    let patch: any[] = []
+    console.log(axe);
+    for (const swarmAxe of this.swarm) {
+      if (swarmAxe.IP === axe.IP) {
+        const locateMode = swarmAxe.locateMode ? 0 : 1;
+        patch.push({"IP": swarmAxe.IP, "locateMode": locateMode});
+      } else {
+        if (swarmAxe.locateMode) {
+          patch.push({"IP": swarmAxe.IP, "locateMode": 0});
+        }
+      }
+    }
+
+    for (const item of patch) {
+      this.systemService.updateSystem(`http://${item.IP}`, {locateMode: item.locateMode}).pipe(
+        catchError(error => {
+          this.toastr.error(`Failed to turn ${item.locateMode ? "on" : "off"} locate mode`, 'Error');
+          return of(null);
+        })
+      ).subscribe(res => {
+        if (res !== null) {
+          this.toastr.success('Go find your Bitaxe', 'Success');
+        }
+      });
+    }
+  }
+
   public remove(axeOs: any) {
     this.swarm = this.swarm.filter(axe => axe.IP != axeOs.IP);
     this.localStorageService.setObject(SWARM_DATA, this.swarm);
@@ -196,7 +236,7 @@ export class SwarmComponent implements OnInit, OnDestroy {
 
     from(ips).pipe(
       mergeMap(ipAddr =>
-        this.httpClient.get(`http://${ipAddr}/api/system/info`).pipe(
+        this.systemService.getInfo(`http://${ipAddr}`).pipe(
           map(result => {
             return {
               IP: ipAddr,

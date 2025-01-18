@@ -58,6 +58,7 @@
             <th>Version</th>
             <th>Edit</th>
             <th>Restart</th>
+            <th>Locate</th>
             <th>Remove</th>
         </tr>
         <ng-container *ngFor="let axe of swarm">
@@ -104,6 +105,7 @@
                 <td>{{axe.version}}</td>
              <td><p-button icon="pi pi-pencil" pp-button (click)="edit(axe)"></p-button></td>
                 <td><p-button icon="pi pi-sync" pp-button severity="danger" (click)="restart(axe)"></p-button></td>
+                <td><p-button icon="pi pi-wifi" pp-button severity="danger" (click)="locate(axe)"></p-button></td>
                 <td><p-button icon="pi pi-trash" pp-button severity="secondary" (click)="remove(axe)"></p-button></td>
             </tr>
         </ng-container>

@@ -168,6 +168,7 @@ export class EditComponent implements OnInit, OnDestroy {
           autofanspeed: [info.autofanspeed == 1, [Validators.required]],
           invertfanpolarity: [info.invertfanpolarity == 1, [Validators.required]],
           fanspeed: [info.fanspeed, [Validators.required]],
+          locateMode: [info.locateMode == 1, [Validators.required]],
           overheat_mode: [info.overheat_mode, [Validators.required]]
         });
 
@@ -241,6 +242,24 @@ export class EditComponent implements OnInit, OnDestroy {
   showFallbackStratumPassword: boolean = false;
   toggleFallbackStratumPasswordVisibility() {
     this.showFallbackStratumPassword = !this.showFallbackStratumPassword;
+  }
+
+  public locate() {
+    const locateMode = this.form.get('locateMode')?.value;
+    this.systemService.updateSystem(this.uri, { locateMode: locateMode ? 1 : 0 })
+      .pipe(this.loadingService.lockUIUntilComplete())
+      .subscribe({
+        next: () => {
+          if (locateMode) {
+            this.toastr.success('Success!', 'Go find your Bitaxe');
+          } else {
+            this.toastr.success('Success!', 'Locate mode disabled');
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          this.toastr.error('Error', `Failed to turn ${locateMode ? 'on' : 'off'} locate mode. ${err.message}`);
+        }
+      });
   }
 
   public restart() {

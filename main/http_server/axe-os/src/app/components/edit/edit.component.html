@@ -133,6 +133,13 @@
                 <label for="autofanspeed">Automatic Fan Control</label>
             </div>
         </div>
+        <div class="col-12">
+            <div class="field-checkbox">
+                <p-checkbox name="locateMode" formControlName="locateMode" inputId="locateMode"
+                    [binary]="true" (click)="locate()"></p-checkbox>
+                <label for="locateMode">Locate</label>
+            </div>
+        </div>
 
         <div *ngIf="form.controls['autofanspeed'].value != true">
             <div class="col-12" *ngIf="form.controls['autofanspeed'].value != true">
