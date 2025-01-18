@@ -194,40 +194,63 @@ export class HomeComponent {
       }
     };
 
-
-    this.info$ = interval(5000).pipe(
-      startWith(() => this.systemService.getInfo()),
-      switchMap(() => {
-        return this.systemService.getInfo()
-      }),
-      tap(info => {
-        this.hashrateData.push(info.hashRate * 1000000000);
-        this.temperatureData.push(info.temp);
-
-        this.dataLabel.push(new Date().getTime());
-
-        if (this.hashrateData.length >= 720) {
-          this.hashrateData.shift();
-          this.dataLabel.shift();
-        }
-
+    setInterval(() => {
+      this.systemService.getMeasurements('').subscribe(measurements => {
+        let time = new Date().getTime();
+        measurements.forEach(measurement => {
+          this.hashrateData.push(measurement.hashRate * 1000000000);
+          this.temperatureData.push(measurement.temp);
+          this.dataLabel.push(time);
+          const createdAt = new Date(measurement.CreatedAt);
+          this.systemService.timeStamp = createdAt.getTime();
+          time += 20000;
+        });
         this.chartData.labels = this.dataLabel;
         this.chartData.datasets[0].data = this.hashrateData;
         this.chartData.datasets[2].data = this.temperatureData;
 
-        // Calculate average hashrate and fill the array with the same value for the average line
         const averageHashrate = this.calculateAverage(this.hashrateData);
         this.chartData.datasets[1].data = Array(this.hashrateData.length).fill(averageHashrate);
 
         this.chartData = {
           ...this.chartData
         };
-
-        this.maxPower = Math.max(50, info.power);
-        this.maxTemp = Math.max(75, info.temp);
-        this.maxFrequency = Math.max(800, info.frequency);
-
+      });
+    }, 5000);
+  
+    this.info$ = interval(30000).pipe(
+      startWith(() => this.systemService.getInfo()),
+      switchMap(() => {
+        return this.systemService.getInfo()
       }),
+      // tap(info => {
+      //   this.hashrateData.push(info.hashRate * 1000000000);
+      //   this.temperatureData.push(info.temp);
+
+      //   this.dataLabel.push(new Date().getTime());
+
+      //   if (this.hashrateData.length >= 720) {
+      //     this.hashrateData.shift();
+      //     this.dataLabel.shift();
+      //   }
+
+      //   this.chartData.labels = this.dataLabel;
+      //   this.chartData.datasets[0].data = this.hashrateData;
+      //   this.chartData.datasets[2].data = this.temperatureData;
+
+      //   // Calculate average hashrate and fill the array with the same value for the average line
+      //   const averageHashrate = this.calculateAverage(this.hashrateData);
+      //   this.chartData.datasets[1].data = Array(this.hashrateData.length).fill(averageHashrate);
+
+      //   this.chartData = {
+      //     ...this.chartData
+      //   };
+
+      //   this.maxPower = Math.max(50, info.power);
+      //   this.maxTemp = Math.max(75, info.temp);
+      //   this.maxFrequency = Math.max(800, info.frequency);
+
+      // }),
       map(info => {
         info.power = parseFloat(info.power.toFixed(1))
         info.voltage = parseFloat((info.voltage / 1000).toFixed(1));

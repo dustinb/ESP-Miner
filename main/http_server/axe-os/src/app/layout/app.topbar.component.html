@@ -3,10 +3,13 @@
         <div [routerLink]="['/']" class="header-text"><span style="font-family: Angel Wish; font-size: 4rem;">Axe</span><span class="os" style=" font-size: 3rem;">OS</span></div>
     </a>
 
+    <select>
+        <option [value]="192.168.1.226">192.168.1.226</option>
+    </select>
+
     <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
         <i class="pi pi-bars"></i>
     </button>
-
 
     <div class="layout-topbar-menu">
 

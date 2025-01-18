@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { eASICModel } from 'src/models/enum/eASICModel';
 import { ISystemInfo } from 'src/models/ISystemInfo';
-
+import { IMeasurement } from 'src/models/IMeasurement';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -14,6 +14,16 @@ export class SystemService {
   constructor(
     private httpClient: HttpClient
   ) { }
+
+  public timeStamp: number = 0;
+
+  public getMeasurements(uri: string = ''): Observable<IMeasurement[]> {
+    const params = {
+      macAddr: 'E4:B0:63:86:72:C8',
+      from: this.timeStamp
+    };
+    return this.httpClient.get(`${uri}/axego/measurements`, { params }) as Observable<IMeasurement[]>;
+  }
 
   public getInfo(uri: string = ''): Observable<ISystemInfo> {
     if (environment.production) {
