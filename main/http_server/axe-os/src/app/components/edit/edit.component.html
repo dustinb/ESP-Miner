@@ -89,7 +89,7 @@
             <button pButton [disabled]="!savedChanges" *ngIf="requiresRestart()" (click)="restart()"
                 class="mr-2">Restart</button>
             <button *ngIf="settingsUnlocked" pButton pButton="p-button-danger" (click)="toggleOverclockMode(false)"
-                class="p-button-danger" pTooltip="Return to safe preset values only">
+                class="p-button-danger mt-2 md:mt-0" pTooltip="Return to safe preset values only">
                 Disable Overclock Mode
             </button>
         </div>
